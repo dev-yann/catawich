@@ -1,0 +1,51 @@
+# Pour créer docker la premier fois docker-compose up et ajouter une ligne a cd/hosts en local (127.0.0.1 catawish.local)
+# Redemarer les container docker-compose start // ou docker-compose stop
+
+
+version: "3"
+services:
+  web:
+    image: canals/php
+    container_name: catawish.local
+    environment:
+      - VHOST_HOSTNAME=catawish.local
+      - VHOST_DOCROOT=/var/www/cata
+    env_file:
+      - ./proxy.env
+    ports:
+      - "12080:80"
+      - "12443:443"
+    volumes :
+      - ./:/var/www/cata
+    links :
+      - mysql:db
+
+#############################
+# mysql + adminer / can be replaced by mariadb
+#############################
+
+
+  mysql:
+    image: mariadb:latest
+    container_name: mysql.catawich.local
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_USER=cata
+      - MYSQL_PASSWORD=cata
+      - MYSQL_DATABASE=cata
+    ports:
+      - "3603:3306"
+    volumes :
+      - ./sql:/var/sql
+
+#Se connecter a la BD localhost:8080
+  adminer:
+     image: adminer
+     container_name: adminer.catawich.local
+     ports:
+       - "8080:8080"
+     links:
+       - mysql:db
+
+volumes:
+   data:
